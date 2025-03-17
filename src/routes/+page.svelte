@@ -15,6 +15,7 @@
     SelectItem
   } from "carbon-components-svelte";
   import { Add } from "carbon-icons-svelte";
+	import { notify } from '../utils/notification.util';
 
   let rows = [
     {
@@ -65,6 +66,7 @@
     rows = [...rows, { id: (rows.length + 1).toString(), ...newProject }];
     open = false;
     newProject = { name: "", status: "Active", progress: "0%" };
+    notify.info("Project created successfully");
   }
 </script>
 

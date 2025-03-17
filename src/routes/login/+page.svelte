@@ -1,4 +1,5 @@
-<script>
+<script lang="ts">
+  import { LoginSchema, type LoginDto, type LoginResponseDto } from '../../services/dummy-json/dtos/login.dto';
   import {
     Grid,
     Row,
@@ -7,58 +8,97 @@
     PasswordInput,
     Button,
     Link,
-    Theme
+    Theme,
+    InlineNotification
   } from "carbon-components-svelte";
   import { Login } from "carbon-icons-svelte";
   import "carbon-components-svelte/css/all.css";
+import { createMutation } from '@tanstack/svelte-query';
+	import { postLogin } from '../../services/dummy-json/auth.service';
 	import { goto } from '$app/navigation';
+	import { notify } from '../../utils/notification.util';
 
-  let email = "";
-  let password = "";
+
+  let username = 'emilys';
+  let password = 'emilyspass';
+
+  const loginMutate = createMutation<LoginResponseDto, Error, LoginDto>({
+    mutationKey: ['login'],
+    mutationFn: async (credentials) => {
+      LoginSchema.parse(credentials);
+      return await postLogin(credentials);
+    },
+    onSuccess: (data) => {
+      notify.info('Login success')
+      goto('/');
+    },
+    onError: (error: Error) => {
+      console.error('Login failed:', error);
+    }
+  });
 
   function handleLogin() {
-    // TODO: Implement login logic
-    console.log("Login attempt:", { email, password });
+    $loginMutate.reset();
+    $loginMutate.mutate({
+      username,
+      password
+    });
   }
 </script>
 
-<Theme>
-  <div class="login-container">
-    <Grid>
-      <Row>
-        <Column sm={4} md={8} lg={16}>
-          <div class="login-box">
-            <div class="login-header">
-              <h1>Welcome Back</h1>
-              <p>Please login to continue</p>
-            </div>
-
-            <form on:submit|preventDefault={handleLogin}>
-              <TextInput
-                labelText="Email"
-                placeholder="Enter your email"
-                bind:value={email}
-                required
-              />
-
-              <PasswordInput
-                labelText="Password"
-                placeholder="Enter your password"
-                bind:value={password}
-                required
-              />
-
-              <div class="form-footer">
-                <Link href="/forgot-password">Forgot password?</Link>
-                <Button type="submit" icon={Login} on:click={() => {goto("/")}}>Login</Button>
+  <Theme>
+    <div class="login-container">
+      <Grid>
+        <Row>
+          <Column sm={4} md={8} lg={16}>
+            <div class="login-box">
+              <div class="login-header">
+                <h1>Welcome Back</h1>
+                <p>Please login to continue</p>
               </div>
-            </form>
-          </div>
-        </Column>
-      </Row>
-    </Grid>
-  </div>
-</Theme>
+
+              {#if $loginMutate.isError}
+                <InlineNotification
+                lowContrast
+                  kind="error"
+                  title="Login Failed"
+                  subtitle={$loginMutate.error.message}
+                  hideCloseButton
+                />
+              {/if}
+
+              <form on:submit|preventDefault={handleLogin}>
+                <TextInput
+                  labelText="Username"
+                  placeholder="Enter your username"
+                  bind:value={username}
+                  required
+                />
+
+                <PasswordInput
+                  labelText="Password"
+                  placeholder="Enter your password"
+                  bind:value={password}
+                  required
+                />
+
+                <div class="form-footer">
+                  <Link href="/forgot-password">Forgot password?</Link>
+                  <Button
+                    type="submit"
+                    icon={Login}
+                    disabled={$loginMutate.isPending}
+                  >
+                    Login
+                  </Button>
+                </div>
+              </form>
+            </div>
+          </Column>
+        </Row>
+      </Grid>
+    </div>
+  </Theme>
 
 <style>
   .login-container {

@@ -39,7 +39,7 @@
   let isOpen3 = false;
 </script>
 
-<Theme>
+  <Theme>
   <Header company="GIT" platformName="Cacing69" bind:isSideNavOpen>
     <svelte:fragment slot="skip-to-content">
       <SkipToContent />
