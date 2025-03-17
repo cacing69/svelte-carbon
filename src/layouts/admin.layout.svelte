@@ -31,6 +31,7 @@
 
   } from "carbon-icons-svelte";
   import "carbon-components-svelte/css/all.css";
+	import { goto } from '$app/navigation';
 
   let isSideNavOpen = true;
   let isOpen1 = false;
@@ -81,12 +82,11 @@
         <HeaderPanelDivider>Switcher subject 1</HeaderPanelDivider>
         <HeaderPanelLink>Switcher item 1</HeaderPanelLink>
         <HeaderPanelDivider>Switcher subject 2</HeaderPanelDivider>
-        <HeaderPanelLink>Switcher item 1</HeaderPanelLink>
+        <HeaderPanelLink on:click={() => {goto("/login")}}>Logout</HeaderPanelLink>
       </HeaderPanelLinks>
     </HeaderAction>
     <HeaderAction
       bind:isOpen={isOpen3}
-      text="Switcher text"
       on:open={() => {
         isOpen1 = false;
         isOpen2 = false;

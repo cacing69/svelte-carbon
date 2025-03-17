@@ -155,11 +155,12 @@
       placeholder="Enter project name"
       bind:value={newProject.name}
     />
-    <Select 
-      labelText="Status" 
+    <Select
+      labelText="Status"
       id="status-select"
       hideLabel={false}
-      bind:value={newProject.status}
+      selected={newProject.status}
+      on:change={e => {console.log(e)}}
     >
       <SelectItem value="Active" text="Active" />
       <SelectItem value="Pending" text="Pending" />
