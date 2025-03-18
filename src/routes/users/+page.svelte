@@ -1,11 +1,11 @@
-<script>
+<script lang="ts">
 	import {
 		DataTable,
 		Toolbar,
 		ToolbarContent,
 		ToolbarSearch,
-		ToolbarMenu,
-		ToolbarMenuItem,
+		// ToolbarMenu,
+		// ToolbarMenuItem,
 		ToolbarBatchActions,
 		Pagination,
 		Button,
@@ -15,15 +15,29 @@
 		SelectItem,
 		Grid,
 		Row,
-		Column
+		Column,
+		DataTableSkeleton,
+		Tag
 	} from 'carbon-components-svelte';
-	import Save from 'carbon-icons-svelte/lib/Save.svelte';
 	import AdminLayout from './../layouts/admin.layout.svelte';
 	import { notify } from '../../utils/notification.svelte';
+	import { Add, Delete, Edit, Renew, SyncSettings, TrashCan } from 'carbon-icons-svelte';
+	import { createQuery } from '@tanstack/svelte-query';
+	import type { UserResponseDto, UsersResponse } from '../../services/dummy-json/dtos/users.dto';
+	import { getUsers, searchUsers } from '../../services/dummy-json/users.service';
+	import { debounce, first } from 'lodash-es';
+	import type {
+		DataTableHeader,
+		DataTableRow
+	} from 'carbon-components-svelte/src/DataTable/DataTable.svelte';
+	import Popconfirm from '../../components/popconfirm.svelte';
 
+	const sortable = true;
 	let pageSize = 10;
 	let page = 1;
+	let totalItems = 0;
 	let open = false;
+	let search: string = '';
 	let newProject = {
 		name: '',
 		status: 'Active',
@@ -31,34 +45,118 @@
 	};
 
 	function handleSubmit() {
-		// rows = [...rows, { id: (rows.length + 1).toString(), ...newProject }];
 		open = false;
-		// newProject = { name: "", status: "Active", progress: "0%" };
-		notify.info('Project created successfully');
+		notify.info('User created successfully');
 	}
 
-	const headers = [
-		{ key: 'name', value: 'Name', sortable: false, empty: false },
-		{ key: 'port', value: 'Port', sortable: false, empty: false },
-		{ key: 'rule', value: 'Rule', sortable: false, empty: false }
+	const handleEdit = async (row: UserResponseDto) => {
+		alert(`Edit : ${JSON.stringify(row)}`);
+	};
+
+	let selectedUser: UserResponseDto | null = null;
+
+	let showDeleteModal = false;
+	const confirmDelete = async () => {
+		if (selectedUser) {
+			alert(`Delete : ${JSON.stringify(selectedUser)}`);
+			notify.info('User deleted successfully');
+		}
+		showDeleteModal = false;
+		selectedUser = null;
+	};
+
+	const handleDelete = async (row: UserResponseDto) => {
+		showDeleteModal = true;
+		selectedUser = row;
+	};
+
+	let sortDirection: string | null = 'asc';
+	let sortField: string | null = 'firstName';
+
+	// Tambahkan handler untuk sorting
+	const handleSort = async (e: CustomEvent) => {
+		const { header, sortDirection: targetDirection } = e.detail;
+		const { key } = header;
+
+		if (sortable && !('sort' in header)) {
+			if (targetDirection !== 'none') {
+				sortDirection = targetDirection === 'ascending' ? 'asc' : 'desc';
+				sortField = key;
+			} else {
+				sortDirection = null;
+				sortField = null;
+			}
+
+			await $usersQuery.refetch();
+		}
+
+		return;
+	};
+
+	const headers: DataTableHeader[] = [
+		{ key: 'firstName', value: 'First Name', empty: false },
+		{ key: 'lastName', value: 'Last Name', sort: false, empty: false },
+		{
+			key: 'lengthFirstName',
+			value: 'Status',
+			sort: false,
+			empty: false
+		},
+		{
+			key: 'age',
+			value: 'Age',
+			empty: false
+		},
+		{ key: 'gender', value: 'Gender', sort: false, empty: false },
+		{ key: 'actionColumn', value: 'Action', sort: false, empty: false }
 	];
 
-	const rows = [
-		{ id: 1, name: 'Load Balancer 1', port: 3000, rule: 'Round robin' },
-		{ id: 2, name: 'Load Balancer 2', port: 443, rule: 'Round robin' },
-		{ id: 3, name: 'Load Balancer 3', port: 80, rule: 'DNS delegation' },
-		{ id: 4, name: 'Load Balancer 4', port: 3000, rule: 'Round robin' },
-		{ id: 5, name: 'Load Balancer 5', port: 443, rule: 'Round robin' },
-		{ id: 6, name: 'Load Balancer 6', port: 80, rule: 'DNS delegation' },
-		{ id: 7, name: 'Load Balancer 7', port: 3000, rule: 'Round robin' },
-		{ id: 8, name: 'Load Balancer 8', port: 443, rule: 'Round robin' },
-		{ id: 9, name: 'Load Balancer 9', port: 80, rule: 'DNS delegation' },
-		{ id: 10, name: 'Load Balancer 10', port: 3000, rule: 'Round robin' }
-	];
+	let rows: UserResponseDto[] = [];
 
-	let selectedRowIds = [rows[0].id, rows[1].id, rows[2].id];
+	// let selectedRowIds = [rows[0].id, rows[1].id, rows[2].id];
+	let selectedRowIds: number[] = [];
 
-	$: console.log('selectedRowIds', selectedRowIds);
+	const usersQuery = createQuery<UsersResponse, Error>({
+		queryKey: ['users', { page, pageSize, sortField, sortDirection }],
+		queryFn: () => {
+			let params = {
+				limit: pageSize,
+				skip: (page - 1) * pageSize,
+				sortBy: sortField,
+				order: sortDirection,
+				q: search
+			};
+
+			if (search.length > 0) {
+				return searchUsers(params);
+			} else {
+				return getUsers(params);
+			}
+		}
+	});
+
+	const handleRefresh = async () => {
+		search = '';
+		page = 1;
+		await $usersQuery.refetch();
+	};
+
+	const handleSearch = debounce(async (value: string) => {
+		search = value;
+		page = 1;
+		await $usersQuery.refetch();
+	}, 300);
+
+	const handlePagination = async () => {
+		await $usersQuery.refetch();
+	};
+
+	$: {
+		if ($usersQuery.data) {
+			rows = $usersQuery.data.users;
+			totalItems = $usersQuery.data.total;
+		}
+	}
 </script>
 
 <AdminLayout>
@@ -90,39 +188,125 @@
 		</Select>
 	</Modal>
 
+	<Modal
+		bind:open={showDeleteModal}
+		size="xs"
+		modalHeading="Delete Confirmation"
+		primaryButtonText="Delete"
+		secondaryButtonText="Cancel"
+		danger
+		on:click:button--primary={confirmDelete}
+		on:click:button--secondary={() => showDeleteModal = false}
+	>
+		<p>Are you sure you want to delete this user?</p>
+	</Modal>
+
 	<Grid fullWidth>
 		<Row>
 			<Column>
-				<DataTable
-					title="List Users"
-					description="Lorem ipsum dolor sit amet, consectetur adipiscing elit."
-					batchSelection
-					bind:selectedRowIds
-					{headers}
-					{rows}
-				>
-					<Toolbar>
-						<ToolbarBatchActions>
-							<Button icon={Save}>Save</Button>
-						</ToolbarBatchActions>
-						<ToolbarContent>
-							<ToolbarSearch />
-							<ToolbarMenu>
+				{#if $usersQuery.isLoading}
+					<DataTableSkeleton headers={headers.map((item: any) => item.value)} rows={pageSize} />
+				{:else}
+					<DataTable
+						stickyHeader={false}
+						title="List Users"
+						description="Lorem ipsum dolor sit amet, consectetur adipiscing elit."
+						batchSelection
+						bind:selectedRowIds
+						{sortable}
+						on:click:header={handleSort}
+						{headers}
+						{rows}
+					>
+						<Toolbar>
+							<ToolbarBatchActions>
+								<Button icon={Delete}>Delete</Button>
+							</ToolbarBatchActions>
+							<ToolbarContent>
+								<ToolbarSearch
+									on:clear={handleRefresh}
+									on:keyup={(e: Event) => handleSearch((e.target as HTMLInputElement).value)}
+								/>
+								<!-- <ToolbarMenu>
 								<ToolbarMenuItem primaryFocus>Restart all</ToolbarMenuItem>
 								<ToolbarMenuItem href="https://cloud.ibm.com/docs/loadbalancer-service">
 									API documentation
 								</ToolbarMenuItem>
 								<ToolbarMenuItem hasDivider danger>Stop all</ToolbarMenuItem>
-							</ToolbarMenu>
-							<Button
-								on:click={() => {
-									open = true;
-								}}>Create balancer</Button
-							>
-						</ToolbarContent>
-					</Toolbar>
-				</DataTable>
-				<Pagination totalItems={rows.length} pageSizes={[5, 10, 15]} bind:pageSize bind:page />
+							</ToolbarMenu> -->
+								<Button
+									kind="secondary"
+									iconDescription="Refresh"
+									icon={Renew}
+									on:click={handleRefresh}
+								></Button>
+								<Button
+									icon={Add}
+									on:click={() => {
+										open = true;
+									}}>Add User</Button
+								>
+							</ToolbarContent>
+						</Toolbar>
+						<svelte:fragment slot="cell" let:row let:cell>
+							{#if cell.key === 'actionColumn'}
+								<Row>
+									<Button
+										style="margin-right: 5px;"
+										size="small"
+										kind="tertiary"
+										on:click={() => handleEdit(row as UserResponseDto)}
+										iconDescription="Edit"
+										icon={Edit}
+									/>
+									<Button
+										size="small"
+										kind="danger-tertiary"
+										on:click={() => handleDelete(row as UserResponseDto)}
+										iconDescription="Delete"
+										icon={TrashCan}
+									/>
+									<!-- <Popconfirm
+										title="top-left"
+										confirm={async () => {
+											handleDelete(row as UserResponseDto);
+										}}
+									>
+										{#snippet popConfirmBody()}
+											<Button
+												size="small"
+												kind="danger-tertiary"
+												iconDescription="Delete"
+												icon={TrashCan}
+											/>
+										{/snippet}
+									</Popconfirm> -->
+								</Row>
+							{:else if cell.key === 'lengthFirstName'}
+								{row?.firstName?.length == 5 ? 'Passed' : 'Not passed'}
+							{:else if cell.key === 'gender'}
+								{#if row?.gender === 'male'}
+									<Tag type="blue">Male</Tag>
+								{:else if row?.gender === 'female'}
+									<Tag type="magenta">Female</Tag>
+								{:else}
+									<Tag type="gray">Other</Tag>
+								{/if}
+							{:else if cell.display}
+								{cell.display(cell.value, row)}
+							{:else}
+								{cell.value}
+							{/if}
+						</svelte:fragment>
+					</DataTable>
+					<Pagination
+						{totalItems}
+						pageSizes={[5, 10, 25, 50, 100]}
+						bind:pageSize
+						bind:page
+						on:update={handlePagination}
+					/>
+				{/if}
 			</Column>
 		</Row>
 	</Grid>

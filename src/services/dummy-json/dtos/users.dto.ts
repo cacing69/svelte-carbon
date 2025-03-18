@@ -79,6 +79,8 @@ export const UsersResponseSchema = z.object({
 	limit: z.number()
 });
 
+export type UserResponseDto = z.infer<typeof UserSchema>;
+
 export type Coordinates = z.infer<typeof CoordinatesSchema>;
 export type Address = z.infer<typeof AddressSchema>;
 export type Hair = z.infer<typeof HairSchema>;

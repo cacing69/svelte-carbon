@@ -7,6 +7,8 @@ interface NotificationState {
 	message: string;
 }
 
+const duration = 3000;
+
 export const  notification = $state<NotificationState>({
 	show: false,
 	kind: 'info',
@@ -31,7 +33,7 @@ export const showNotification = (
 		notification.kind = 'info';
 		notification.title = '';
 		notification.message = '';
-	}, 3000);
+	}, duration);
 };
 
 export const notify = {

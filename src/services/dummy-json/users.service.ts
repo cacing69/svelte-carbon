@@ -9,3 +9,9 @@ export const getUsers = async (queryParams: unknown = {}): Promise<UsersResponse
 
 	return data;
 };
+
+export const searchUsers = async (queryParams: unknown = {}): Promise<UsersResponse> => {
+	const { data } = await dummyJsonHttp.get(`${path}/search`, { params: queryParams });
+
+	return data;
+};
