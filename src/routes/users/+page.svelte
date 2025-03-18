@@ -147,8 +147,9 @@
 		await $usersQuery.refetch();
 	}, 300);
 
-	const handlePageSize = async (e: CustomEvent) => {
-		const {page, pageSize} = e.detail;
+	const handlePagination = async (e: CustomEvent) => {
+
+		if($usersQuery.isFetching) return;
 
 		await $usersQuery.refetch();
 	}
@@ -316,8 +317,8 @@
 						pageSizes={[5, 10, 25, 50, 100]}
 						bind:pageSize
 						bind:page
-						on:change={handlePageSize}
-
+						on:change={handlePagination}
+						disabled={$usersQuery.isFetching}
 					/>
 				{/if}
 			</Column>
