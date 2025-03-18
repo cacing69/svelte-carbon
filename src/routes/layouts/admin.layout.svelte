@@ -30,9 +30,9 @@
 	import { page } from '$app/stores';
 
 	let isSideNavOpen = true;
-	let isOpen1 = false;
-	let isOpen2 = false;
-	let isOpen3 = false;
+	let isSettingOpen = false;
+	let isProfileOpen = false;
+	let isSwitcherOpen = false;
 
 	$: currentPath = $page.url.pathname;
 </script>
@@ -53,35 +53,33 @@
 
 		<HeaderUtilities>
 			<HeaderAction
-				bind:isOpen={isOpen1}
+				bind:isOpen={isSettingOpen}
 				iconDescription="Settings"
 				tooltipAlignment="start"
 				icon={SettingsAdjust}
 				on:open={() => {
-					isOpen2 = false;
-					isOpen3 = false;
+					isProfileOpen = false;
+					isSwitcherOpen = false;
 				}}
 			>
 				<HeaderPanelLinks>
-					<HeaderPanelDivider>Switcher subject 1</HeaderPanelDivider>
-					<HeaderPanelLink>Switcher item 1</HeaderPanelLink>
-					<HeaderPanelDivider>Switcher subject 2</HeaderPanelDivider>
-					<HeaderPanelLink>Switcher item 1</HeaderPanelLink>
+					<HeaderPanelDivider>Setting</HeaderPanelDivider>
+					<HeaderPanelLink>Token</HeaderPanelLink>
 				</HeaderPanelLinks>
 			</HeaderAction>
 			<HeaderAction
-				bind:isOpen={isOpen2}
+				bind:isOpen={isProfileOpen}
 				iconDescription="Profile"
 				icon={UserAvatarFilledAlt}
 				on:open={() => {
-					isOpen1 = false;
-					isOpen3 = false;
+					isSettingOpen = false;
+					isSwitcherOpen = false;
 				}}
 			>
 				<HeaderPanelLinks>
-					<HeaderPanelDivider>Switcher subject 1</HeaderPanelDivider>
-					<HeaderPanelLink>Switcher item 1</HeaderPanelLink>
-					<HeaderPanelDivider>Switcher subject 2</HeaderPanelDivider>
+					<HeaderPanelDivider>Profile</HeaderPanelDivider>
+					<HeaderPanelLink>Fullname</HeaderPanelLink>
+					<HeaderPanelDivider>Actions</HeaderPanelDivider>
 					<HeaderPanelLink
 						on:click={() => {
 							goto('/login');
@@ -90,15 +88,15 @@
 				</HeaderPanelLinks>
 			</HeaderAction>
 			<HeaderAction
-				bind:isOpen={isOpen3}
+				bind:isOpen={isSwitcherOpen}
 				on:open={() => {
-					isOpen1 = false;
-					isOpen2 = false;
+					isSettingOpen = false;
+					isProfileOpen = false;
 				}}
 			>
 				<HeaderPanelLinks>
-					<HeaderPanelDivider>Switcher subject 1</HeaderPanelDivider>
-					<HeaderPanelLink>Switcher item 1</HeaderPanelLink>
+					<HeaderPanelDivider>Switcher</HeaderPanelDivider>
+					<HeaderPanelLink>Context</HeaderPanelLink>
 				</HeaderPanelLinks>
 			</HeaderAction>
 		</HeaderUtilities>

@@ -98,33 +98,19 @@
   ];
 
   const rows = [
-    { id: "a", name: "Load Balancer 3", port: 3000, rule: "Round robin" },
-    { id: "b", name: "Load Balancer 1", port: 443, rule: "Round robin" },
-    { id: "c", name: "Load Balancer 2", port: 80, rule: "DNS delegation" },
-    { id: "d", name: "Load Balancer 6", port: 3000, rule: "Round robin" },
-    { id: "e", name: "Load Balancer 4", port: 443, rule: "Round robin" },
-    { id: "f", name: "Load Balancer 5", port: 80, rule: "DNS delegation" },
-    { id: "g", name: "Load Balancer 3", port: 3000, rule: "Round robin" },
-    { id: "h", name: "Load Balancer 1", port: 443, rule: "Round robin" },
-    { id: "i", name: "Load Balancer 2", port: 80, rule: "DNS delegation" },
-    { id: "j", name: "Load Balancer 6", port: 3000, rule: "Round robin" },
-    { id: "k", name: "Load Balancer 4", port: 443, rule: "Round robin" },
-    { id: "l", name: "Load Balancer 5", port: 80, rule: "DNS delegation" },
-     { id: "m", name: "Load Balancer 3", port: 3000, rule: "Round robin" },
-    { id: "n", name: "Load Balancer 1", port: 443, rule: "Round robin" },
-    { id: "o", name: "Load Balancer 2", port: 80, rule: "DNS delegation" },
-    { id: "p", name: "Load Balancer 6", port: 3000, rule: "Round robin" },
-    { id: "q", name: "Load Balancer 4", port: 443, rule: "Round robin" },
-    { id: "r", name: "Load Balancer 5", port: 80, rule: "DNS delegation" },
-    { id: "s", name: "Load Balancer 3", port: 3000, rule: "Round robin" },
-    { id: "t", name: "Load Balancer 1", port: 443, rule: "Round robin" },
-    { id: "u", name: "Load Balancer 2", port: 80, rule: "DNS delegation" },
-    { id: "v", name: "Load Balancer 6", port: 3000, rule: "Round robin" },
-    { id: "w", name: "Load Balancer 4", port: 443, rule: "Round robin" },
-    { id: "x", name: "Load Balancer 5", port: 80, rule: "DNS delegation" },
+    { id: 1, name: "Load Balancer 1", port: 3000, rule: "Round robin" },
+    { id: 2, name: "Load Balancer 2", port: 443, rule: "Round robin" },
+    { id: 3, name: "Load Balancer 3", port: 80, rule: "DNS delegation" },
+    { id: 4, name: "Load Balancer 4", port: 3000, rule: "Round robin" },
+    { id: 5, name: "Load Balancer 5", port: 443, rule: "Round robin" },
+    { id: 6, name: "Load Balancer 6", port: 80, rule: "DNS delegation" },
+    { id: 7, name: "Load Balancer 7", port: 3000, rule: "Round robin" },
+    { id: 8, name: "Load Balancer 8", port: 443, rule: "Round robin" },
+    { id: 9, name: "Load Balancer 9", port: 80, rule: "DNS delegation" },
+    { id: 10, name: "Load Balancer 10", port: 3000, rule: "Round robin" },
   ];
 
-  let selectedRowIds = [rows[0].id, rows[1].id, rows[20].id];
+  let selectedRowIds = [rows[0].id, rows[1].id, rows[2].id];
 
   $: console.log("selectedRowIds", selectedRowIds);
 </script>
