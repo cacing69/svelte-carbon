@@ -132,7 +132,7 @@
 			} else {
 				return getUsers(params);
 			}
-		}
+		},
 	});
 
 	const handleRefresh = async () => {
@@ -147,9 +147,15 @@
 		await $usersQuery.refetch();
 	}, 300);
 
-	const handlePagination = async () => {
+	const handlePageSize = async (e: CustomEvent) => {
+		const {page, pageSize} = e.detail;
+
 		await $usersQuery.refetch();
-	};
+	}
+
+	// const handlePagination = async () => {
+	// 	await $usersQuery.refetch();
+	// };
 
 	$: {
 		if ($usersQuery.data) {
@@ -157,6 +163,12 @@
 			totalItems = $usersQuery.data.total;
 		}
 	}
+
+	// $effect(() => {
+	// 	if (pageSize) {
+	// 		console.log(`pageSize: ${pageSize}`);
+	// 	}
+	// });
 </script>
 
 <AdminLayout>
@@ -196,7 +208,7 @@
 		secondaryButtonText="Cancel"
 		danger
 		on:click:button--primary={confirmDelete}
-		on:click:button--secondary={() => showDeleteModal = false}
+		on:click:button--secondary={() => (showDeleteModal = false)}
 	>
 		<p>Are you sure you want to delete this user?</p>
 	</Modal>
@@ -209,7 +221,7 @@
 				{:else}
 					<DataTable
 						stickyHeader={false}
-						title="List Users"
+						title={$usersQuery.isFetching ? 'Loading...' : 'List of Users'}
 						description="Lorem ipsum dolor sit amet, consectetur adipiscing elit."
 						batchSelection
 						bind:selectedRowIds
@@ -288,7 +300,7 @@
 								{#if row?.gender === 'male'}
 									<Tag type="blue">Male</Tag>
 								{:else if row?.gender === 'female'}
-									<Tag type="magenta">Female</Tag>
+									<Tag type="green">Female</Tag>
 								{:else}
 									<Tag type="gray">Other</Tag>
 								{/if}
@@ -304,7 +316,8 @@
 						pageSizes={[5, 10, 25, 50, 100]}
 						bind:pageSize
 						bind:page
-						on:update={handlePagination}
+						on:change={handlePageSize}
+
 					/>
 				{/if}
 			</Column>
