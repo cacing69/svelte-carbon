@@ -28,6 +28,7 @@
 	import 'carbon-components-svelte/css/all.css';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
+	import { onMount } from 'svelte';
 
 	let isSideNavOpen = true;
 	let isSettingOpen = false;
@@ -35,6 +36,12 @@
 	let isSwitcherOpen = false;
 
 	$: currentPath = $page.url.pathname;
+
+	onMount(() => {
+		if (!localStorage.getItem('accessToken')) {
+			goto('/login');
+		}
+	});
 </script>
 
 <Theme>
@@ -106,16 +113,8 @@
 		<SideNavItems>
 			<SideNavLink text="Dashboard" href="/" icon={Dashboard} isSelected={currentPath === '/'} />
 
-			<SideNavMenu
-				text="User Management"
-				icon={User}
-				expanded={currentPath.startsWith('/users')}
-			>
-				<SideNavMenuItem
-					href="/users"
-					text="Users"
-					isSelected={currentPath === '/users'}
-				/>
+			<SideNavMenu text="User Management" icon={User} expanded={currentPath.startsWith('/users')}>
+				<SideNavMenuItem href="/users" text="Users" isSelected={currentPath === '/users'} />
 				<SideNavMenuItem
 					href="/users/roles"
 					text="Roles"

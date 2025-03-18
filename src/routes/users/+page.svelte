@@ -17,20 +17,17 @@
 		Row,
 		Column,
 		DataTableSkeleton,
-		Tag
+		Tag,
+		InlineLoading
 	} from 'carbon-components-svelte';
 	import AdminLayout from './../layouts/admin.layout.svelte';
 	import { notify } from '../../utils/notification.svelte';
-	import { Add, Delete, Edit, Renew, SyncSettings, TrashCan } from 'carbon-icons-svelte';
+	import { Add, Delete, Edit, Renew, TrashCan } from 'carbon-icons-svelte';
 	import { createQuery } from '@tanstack/svelte-query';
 	import type { UserResponseDto, UsersResponse } from '../../services/dummy-json/dtos/users.dto';
 	import { getUsers, searchUsers } from '../../services/dummy-json/users.service';
-	import { debounce, first } from 'lodash-es';
-	import type {
-		DataTableHeader,
-		DataTableRow
-	} from 'carbon-components-svelte/src/DataTable/DataTable.svelte';
-	import Popconfirm from '../../components/popconfirm.svelte';
+	import { debounce } from 'lodash-es';
+	import type { DataTableHeader } from 'carbon-components-svelte/src/DataTable/DataTable.svelte';
 
 	const sortable = true;
 	let pageSize = 10;
@@ -87,7 +84,7 @@
 				sortField = null;
 			}
 
-			await $usersQuery.refetch();
+			await $tableQuery.refetch();
 		}
 
 		return;
@@ -116,7 +113,7 @@
 	// let selectedRowIds = [rows[0].id, rows[1].id, rows[2].id];
 	let selectedRowIds: number[] = [];
 
-	const usersQuery = createQuery<UsersResponse, Error>({
+	const tableQuery = createQuery<UsersResponse, Error>({
 		queryKey: ['users', { page, pageSize, sortField, sortDirection }],
 		queryFn: () => {
 			let params = {
@@ -132,36 +129,35 @@
 			} else {
 				return getUsers(params);
 			}
-		},
+		}
 	});
 
 	const handleRefresh = async () => {
 		search = '';
 		page = 1;
-		await $usersQuery.refetch();
+		await $tableQuery.refetch();
 	};
 
 	const handleSearch = debounce(async (value: string) => {
 		search = value;
 		page = 1;
-		await $usersQuery.refetch();
+		await $tableQuery.refetch();
 	}, 300);
 
 	const handlePagination = async (e: CustomEvent) => {
+		if ($tableQuery.isFetching) return;
 
-		if($usersQuery.isFetching) return;
-
-		await $usersQuery.refetch();
-	}
+		await $tableQuery.refetch();
+	};
 
 	// const handlePagination = async () => {
-	// 	await $usersQuery.refetch();
+	// 	await $tableQuery.refetch();
 	// };
 
 	$: {
-		if ($usersQuery.data) {
-			rows = $usersQuery.data.users;
-			totalItems = $usersQuery.data.total;
+		if ($tableQuery.data) {
+			rows = $tableQuery.data.users;
+			totalItems = $tableQuery.data.total;
 		}
 	}
 
@@ -217,19 +213,20 @@
 	<Grid fullWidth>
 		<Row>
 			<Column>
-				{#if $usersQuery.isLoading}
+				{#if $tableQuery.isLoading}
 					<DataTableSkeleton headers={headers.map((item: any) => item.value)} rows={pageSize} />
 				{:else}
 					<DataTable
 						stickyHeader={false}
-						title={$usersQuery.isFetching ? 'Loading...' : 'List of Users'}
+						title="List of Users"
 						description="Lorem ipsum dolor sit amet, consectetur adipiscing elit."
-						batchSelection
+						batchSelection={true}
 						bind:selectedRowIds
 						{sortable}
 						on:click:header={handleSort}
 						{headers}
 						{rows}
+						zebra={true}
 					>
 						<Toolbar>
 							<ToolbarBatchActions>
@@ -318,8 +315,13 @@
 						bind:pageSize
 						bind:page
 						on:change={handlePagination}
-						disabled={$usersQuery.isFetching}
+						disabled={$tableQuery.isFetching}
 					/>
+				{/if}
+				{#if $tableQuery.isFetching}
+					<div style="display: flex; justify-content: center; padding: 1rem;">
+						<InlineLoading description="Loading data..." />
+					</div>
 				{/if}
 			</Column>
 		</Row>
