@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { LoginSchema, type LoginDto, type LoginResponseDto } from '../../services/dummy-json/dtos/login.dto';
+  import { LoginSchema, type LoginDto, type LoginResponse } from '../../services/dummy-json/dtos/login.dto';
   import {
     Grid,
     Row,
@@ -14,22 +14,24 @@
   import { Login } from "carbon-icons-svelte";
   import "carbon-components-svelte/css/all.css";
 import { createMutation } from '@tanstack/svelte-query';
-	import { postLogin } from '../../services/dummy-json/auth.service';
 	import { goto } from '$app/navigation';
 	import { notify } from '../../utils/notification.util';
+	import { login } from '../../services/dummy-json/auth.service';
 
 
   let username = 'emilys';
   let password = 'emilyspass';
 
-  const loginMutate = createMutation<LoginResponseDto, Error, LoginDto>({
+  const loginMutate = createMutation<LoginResponse, Error, LoginDto>({
     mutationKey: ['login'],
     mutationFn: async (credentials) => {
       LoginSchema.parse(credentials);
-      return await postLogin(credentials);
+      return await login(credentials);
     },
     onSuccess: (data) => {
       notify.info('Login success')
+      localStorage.setItem('accessToken', data.accessToken);
+      localStorage.setItem('refreshToken', data.refreshToken);
       goto('/');
     },
     onError: (error: Error) => {

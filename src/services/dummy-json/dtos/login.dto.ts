@@ -7,7 +7,7 @@ export const LoginSchema = z.object({
 
 export type LoginDto = z.infer<typeof LoginSchema>;
 
-export interface LoginResponseDto {
+export interface LoginResponse {
 	id: number;
 	username: string;
 	email: string;

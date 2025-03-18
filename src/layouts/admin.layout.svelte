@@ -32,11 +32,14 @@
   } from "carbon-icons-svelte";
   import "carbon-components-svelte/css/all.css";
 	import { goto } from '$app/navigation';
+  import { page } from '$app/stores';
 
   let isSideNavOpen = true;
   let isOpen1 = false;
   let isOpen2 = false;
   let isOpen3 = false;
+
+  $: currentPath = $page.url.pathname;
 </script>
 
   <Theme>
@@ -102,10 +105,23 @@
 
   <SideNav bind:isOpen={isSideNavOpen}>
     <SideNavItems>
-      <SideNavLink text="Dashboard" href="/" icon={Dashboard} />
+      <SideNavLink 
+        text="Dashboard" 
+        href="/" 
+        icon={Dashboard}
+        isSelected={currentPath === '/'} 
+      />
 
-      <SideNavMenu text="Analytics" icon={ChartLine}>
-        <SideNavMenuItem href="/analytics/overview" text="Overview" />
+      <SideNavMenu 
+        text="Analytics" 
+        icon={ChartLine}
+        expanded={currentPath.startsWith('/analytics')}
+      >
+        <SideNavMenuItem 
+          href="/analytics/overview" 
+          text="Overview"
+          isSelected={currentPath === '/analytics/overview'}
+        />
         <SideNavMenuItem href="/analytics/reports" text="Reports" />
         <SideNavMenuItem href="/analytics/metrics" text="Metrics" />
       </SideNavMenu>

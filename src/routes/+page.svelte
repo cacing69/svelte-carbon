@@ -1,5 +1,5 @@
 <script>
-  import AdminLayout from './../layouts/admin.layout.svelte';
+  import AdminLayout from './layouts/admin.layout.svelte';
   import {
     Grid,
     Row,
