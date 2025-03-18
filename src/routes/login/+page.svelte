@@ -15,7 +15,7 @@
   import "carbon-components-svelte/css/all.css";
 import { createMutation } from '@tanstack/svelte-query';
 	import { goto } from '$app/navigation';
-	import { notify } from '../../utils/notification.util';
+	import { notify } from '../../utils/notification.svelte';
 	import { login } from '../../services/dummy-json/auth.service';
 
 

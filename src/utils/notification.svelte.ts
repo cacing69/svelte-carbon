@@ -1,4 +1,4 @@
-import { writable } from 'svelte/store';
+
 
 interface NotificationState {
 	show: boolean;
@@ -7,7 +7,7 @@ interface NotificationState {
 	message: string;
 }
 
-const notification = writable<NotificationState>({
+export const  notification = $state<NotificationState>({
 	show: false,
 	kind: 'info',
 	title: '',
@@ -19,9 +19,18 @@ export const showNotification = (
 	title: string,
 	message: string
 ) => {
-	notification.set({ show: true, kind, title, message });
+
+	notification.show = true;
+	notification.kind = kind;
+	notification.title = title;
+	notification.message = message;
+
+
 	setTimeout(() => {
-		notification.set({ show: false, kind: 'info', title: '', message: '' });
+		notification.show = false;
+		notification.kind = 'info';
+		notification.title = '';
+		notification.message = '';
 	}, 3000);
 };
 
@@ -39,5 +48,3 @@ export const notify = {
 		showNotification('info', title, message);
 	}
 };
-
-export default notification;

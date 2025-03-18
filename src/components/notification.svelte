@@ -1,15 +1,15 @@
 <script lang="ts">
 	import { ToastNotification } from 'carbon-components-svelte';
-	import notification from '../utils/notification.util';
+	import { notification } from '../utils/notification.svelte';
 </script>
 
-{#if $notification.show}
+{#if notification.show}
 	<div class="notification-container">
 		<ToastNotification
 			lowContrast
-			kind={$notification.kind}
-			title={$notification.title}
-			subtitle={$notification.message}
+			kind={notification.kind}
+			title={notification.title}
+			subtitle={notification.message}
 			caption={new Date().toLocaleString()}
 		/>
 	</div>

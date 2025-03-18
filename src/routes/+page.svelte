@@ -15,7 +15,7 @@
     SelectItem
   } from "carbon-components-svelte";
   import { Add } from "carbon-icons-svelte";
-	import { notify } from '../utils/notification.util';
+	import { notify } from '../utils/notification.svelte';
 
   let rows = [
     {
