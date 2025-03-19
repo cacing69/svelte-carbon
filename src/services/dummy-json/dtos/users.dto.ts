@@ -69,7 +69,9 @@ export const UserSchema = z.object({
 	ssn: z.string(),
 	userAgent: z.string(),
 	crypto: CryptoSchema,
-	role: z.enum(['admin', 'moderator', 'user'])
+	role: z.enum(['admin', 'moderator', 'user']),
+	isDeleted: z.boolean(),
+	deletedOn: z.string().datetime()
 });
 
 export const UsersResponseSchema = z.object({
@@ -79,7 +81,7 @@ export const UsersResponseSchema = z.object({
 	limit: z.number()
 });
 
-export type UserResponseDto = z.infer<typeof UserSchema>;
+export type UserResponse = z.infer<typeof UserSchema>;
 
 export type Coordinates = z.infer<typeof CoordinatesSchema>;
 export type Address = z.infer<typeof AddressSchema>;
@@ -88,4 +90,5 @@ export type Bank = z.infer<typeof BankSchema>;
 export type Company = z.infer<typeof CompanySchema>;
 export type Crypto = z.infer<typeof CryptoSchema>;
 export type User = z.infer<typeof UserSchema>;
+
 export type UsersResponse = z.infer<typeof UsersResponseSchema>;
