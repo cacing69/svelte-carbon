@@ -31,6 +31,7 @@
 	import type { DataTableHeader } from 'carbon-components-svelte/src/DataTable/DataTable.svelte';
 	import { browser } from '$app/environment';
 	import { onMount } from 'svelte';
+	import type { AxiosError } from 'axios';
 
 	const sortable = true;
 	let pageSize = 10;
@@ -55,11 +56,22 @@
 	};
 
 	let selectedUser: UserResponse | null = null;
+	let abortController: AbortController;
 
 	const deleteMutate = createMutation<UserResponse, Error>({
 		mutationKey: ['delete-user'],
 		mutationFn: async () => {
-			return await deleteUser(selectedUser?.id!);
+			abortController = new AbortController();
+			const signal = abortController.signal;
+
+			try {
+				return await deleteUser(selectedUser?.id!, { signal });
+			} catch (error: any) {
+				if (error.name === 'AbortError') {
+					console.info('Request cancelled');
+				}
+				throw error;
+			}
 		},
 		onSuccess: (data) => {
 			notify.info('User deleted successfully');
@@ -191,6 +203,7 @@
 
 <AdminLayout>
 	<Modal
+		preventCloseOnClickOutside={true}
 		bind:open
 		size="xs"
 		modalHeading="User Entry"
@@ -221,13 +234,30 @@
 	<Modal
 		bind:open={showDeleteModal}
 		size="xs"
+		preventCloseOnClickOutside={true}
 		modalHeading="Delete Confirmation"
 		primaryButtonText={$deleteMutate.isPending ? 'Deleting...' : 'Delete'}
 		secondaryButtonText="Cancel"
 		danger
+		on:close={() => {
+			if ($deleteMutate.isPending) {
+				$deleteMutate.reset();
+				abortController.abort();
+			}
+
+			showDeleteModal = false;
+		}}
 		primaryButtonDisabled={$deleteMutate.isPending}
 		on:click:button--primary={confirmDelete}
-		on:click:button--secondary={() => (showDeleteModal = false)}
+		on:click:button--secondary={() => {
+			if ($deleteMutate.isPending) {
+				$deleteMutate.reset();
+				abortController.abort();
+
+			}
+
+			showDeleteModal = false;
+		}}
 	>
 		<p>Are you sure you want to delete this user?</p>
 	</Modal>

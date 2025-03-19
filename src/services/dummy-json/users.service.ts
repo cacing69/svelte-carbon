@@ -1,6 +1,6 @@
 
 import dummyJsonHttp from '../../http/dummy-json.http';
-import type { UserResponseDto, UsersResponse } from './dtos/users.dto';
+import type { UserResponse, UsersResponse } from './dtos/users.dto';
 
 const path = 'users';
 
@@ -16,8 +16,11 @@ export const searchUsers = async (queryParams: unknown = {}): Promise<UsersRespo
 	return data;
 };
 
-export const deleteUser = async (id: string|number): Promise<UserResponseDto> => {
-	const { data } = await dummyJsonHttp.delete(`${path}/${id}`);
+export const deleteUser = async (
+	id: string | number,
+	options?: { signal?: AbortSignal }
+): Promise<UserResponse> => {
+	const { data } = await dummyJsonHttp.delete(`${path}/${id}`, options);
 
 	return data;
 };
