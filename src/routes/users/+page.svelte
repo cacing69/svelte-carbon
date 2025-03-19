@@ -222,9 +222,10 @@
 		bind:open={showDeleteModal}
 		size="xs"
 		modalHeading="Delete Confirmation"
-		primaryButtonText="Delete"
+		primaryButtonText={$deleteMutate.isPending ? 'Deleting...' : 'Delete'}
 		secondaryButtonText="Cancel"
 		danger
+		primaryButtonDisabled={$deleteMutate.isPending}
 		on:click:button--primary={confirmDelete}
 		on:click:button--secondary={() => (showDeleteModal = false)}
 	>
@@ -304,6 +305,11 @@
 						on:change={handlePagination}
 						disabled={$tableQuery.isFetching}
 					/>
+					{#if $tableQuery.isFetching}
+						<div style="display: flex; justify-content: center; padding: 1rem;">
+							<InlineLoading description="Loading data..." />
+						</div>
+					{/if}
 				</div>
 			</div>
 		{:else}
